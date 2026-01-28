@@ -58,7 +58,7 @@ const CTA = () => {
               variant="outline"
               className="rounded-full px-10 py-6 font-body border-2 border-purple-deep text-purple-deep hover:bg-purple-deep hover:text-primary-foreground transition-all"
             >
-              <a href="tel:+919876543210">
+              <a href="tel:+919910105734">
                 <Phone className="mr-2 w-4 h-4" />
                 Call Us Now
               </a>

@@ -253,10 +253,16 @@ const ContactPage = () => {
                         Phone
                       </h3>
                       <a
-                        href="tel:+919876543210"
+                        href="tel:+919910105734"
                         className="font-body text-muted-foreground hover:text-gold transition-colors"
                       >
-                        +91 98765 43210
+                        +91 9910105734
+                      </a>, 
+                      <a
+                        href="tel:+919899619619"
+                        className="font-body text-muted-foreground hover:text-gold transition-colors"
+                      >
+                        +91 9899619619
                       </a>
                     </div>
                   </div>
@@ -270,10 +276,10 @@ const ContactPage = () => {
                         Email
                       </h3>
                       <a
-                        href="mailto:hello@themagicorn.com"
+                        href="mailto:tmagicorn@gmail.com"
                         className="font-body text-muted-foreground hover:text-gold transition-colors"
                       >
-                        hello@themagicorn.com
+                        tmagicorn@gmail.com
                       </a>
                     </div>
                   </div>
@@ -306,7 +312,7 @@ const ContactPage = () => {
                         Location
                       </h3>
                       <p className="font-body text-muted-foreground">
-                        Mumbai, Maharashtra, India
+                        Noida, Uttar Pradesh, India
                       </p>
                     </div>
                   </div>
