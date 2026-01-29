@@ -7,6 +7,11 @@ import gallery1 from "@/assets/gallery-1.jpg";
 import gallery2 from "@/assets/gallery-2.jpg";
 import gallery3 from "@/assets/gallery-3.jpg";
 import gallery4 from "@/assets/gallery-4.jpg";
+import services1 from "@/assets/services1.jpg";
+import services2 from "@/assets/services2.jpeg";
+import services3 from "@/assets/services3.jpeg";
+import services4 from "@/assets/services4.jpeg";
+import services5 from "@/assets/services5.jpeg";
 
 const categories = ["All", "Gifting", "Weddings", "Birthdays", "Corporate"];
 
@@ -15,10 +20,11 @@ const galleryItems = [
   { image: gallery2, title: "Birthday Celebration", category: "Birthdays" },
   { image: gallery3, title: "Wedding Trousseau", category: "Weddings" },
   { image: gallery4, title: "Corporate Gifts", category: "Corporate" },
-  { image: gallery1, title: "Premium Collection", category: "Gifting" },
-  { image: gallery2, title: "Kids Party", category: "Birthdays" },
-  { image: gallery3, title: "Bridal Set", category: "Weddings" },
-  { image: gallery4, title: "Client Appreciation", category: "Corporate" },
+  { image: services1, title: "Custom Party Essentials", category: "Gifting" },
+  { image: services2, title: "Gift Hampers", category: "Weddings" },
+  { image: services3, title: "Birthday Party Setup", category: "Birthdays" },
+  { image: services4, title: "School Event Planning", category: "Corporate" },
+  { image: services5, title: "Wedding Decor", category: "Weddings" },
 ];
 
 const GalleryPage = () => {

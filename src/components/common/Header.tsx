@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SparkleParticles from "./SparkleParticles";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -15,6 +16,7 @@ const navLinks = [
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLogoHovered, setIsLogoHovered] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -33,7 +35,7 @@ const Header = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? "bg-purple-deep/95 backdrop-blur-md shadow-elevated py-3"
+          ? "bg-purple-royal/95 backdrop-blur-md shadow-elevated py-3"
           : "bg-transparent py-6"
       }`}
     >
@@ -41,10 +43,20 @@ const Header = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
           <motion.div
-            whileHover={{ rotate: 15, scale: 1.1 }}
+            className="relative flex items-center justify-center"
+            onMouseEnter={() => setIsLogoHovered(true)}
+            onMouseLeave={() => setIsLogoHovered(false)}
+            whileHover={{ scale: 1.1 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <Sparkles className="w-8 h-8 text-gold" />
+            {/* Background glow circle */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/15 rounded-full blur-xl" />
+            <img
+              src="/logo.png"
+              alt="The Magicorn Logo"
+              className="w-12 h-12 object-contain relative z-10"
+            />
+            {isLogoHovered && <SparkleParticles count={15} />}
           </motion.div>
           <span className="font-display text-2xl font-bold text-primary-foreground tracking-wide">
             THE <span className="text-gold">MAGICORN</span>

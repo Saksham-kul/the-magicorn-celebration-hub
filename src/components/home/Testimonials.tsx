@@ -47,7 +47,7 @@ const Testimonials = () => {
   };
 
   return (
-    <section className="py-24 lg:py-32 bg-purple-deep relative overflow-hidden">
+    <section className="py-24 lg:py-32 bg-purple-royal relative overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute top-20 left-10 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-64 h-64 bg-purple-light/10 rounded-full blur-3xl" />

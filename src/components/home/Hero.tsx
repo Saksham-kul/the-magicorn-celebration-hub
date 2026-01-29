@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SparkleParticles from "@/components/common/SparkleParticles";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroBg from "@/assets/hero-bg.png";
 
 const Hero = () => {
   return (
@@ -18,7 +18,7 @@ const Hero = () => {
       <div className="absolute inset-0 hero-overlay" />
       
       {/* Sparkle Particles */}
-      <SparkleParticles count={40} />
+      <SparkleParticles count={40} variant="scattered" />
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 text-center">
