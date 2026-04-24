@@ -257,12 +257,6 @@ const ContactPage = () => {
                         className="font-body text-muted-foreground hover:text-gold transition-colors"
                       >
                         +91 9910105734
-                      </a>, 
-                      <a
-                        href="tel:+919899619619"
-                        className="font-body text-muted-foreground hover:text-gold transition-colors"
-                      >
-                        +91 9899619619
                       </a>
                     </div>
                   </div>
@@ -279,7 +273,7 @@ const ContactPage = () => {
                         href="mailto:tmagicorn@gmail.com"
                         className="font-body text-muted-foreground hover:text-gold transition-colors"
                       >
-                        tmagicorn@gmail.com
+                        collectives@themagicorn.com
                       </a>
                     </div>
                   </div>
