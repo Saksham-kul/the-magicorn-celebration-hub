@@ -270,7 +270,7 @@ const ContactPage = () => {
                         Email
                       </h3>
                       <a
-                        href="mailto:tmagicorn@gmail.com"
+                        href="mailto:collectives@themagicorn.com"
                         className="font-body text-muted-foreground hover:text-gold transition-colors"
                       >
                         collectives@themagicorn.com
