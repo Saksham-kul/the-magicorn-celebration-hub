@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import gallery1 from "@/assets/gallery-1.jpg";
@@ -64,7 +65,7 @@ const Catalogue = () => {
             size="lg"
             className="btn-magical rounded-none px-10 py-6 font-body text-xs tracking-[0.25em]"
           >
-            <a href="#contact">VIEW CATALOGUE <ArrowRight className="ml-2 w-4 h-4" /></a>
+            <Link to="/catalogue">VIEW CATALOGUE <ArrowRight className="ml-2 w-4 h-4" /></Link>
           </Button>
         </div>
       </div>
