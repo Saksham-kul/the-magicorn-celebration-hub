@@ -258,30 +258,53 @@
     border-color: hsl(var(--gold) / 0.3);
   }
 
-  /* Button Variants */
+  /* Button Variants — Gold outline only (no fills) */
   .btn-magical {
-    background: var(--gradient-gold);
-    color: hsl(var(--purple-deep));
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: var(--shadow-soft);
+    border: 1px solid hsl(var(--gold));
+    color: hsl(var(--gold));
+    background: transparent;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .btn-magical:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-gold);
+    box-shadow: 0 0 24px hsl(var(--gold) / 0.35);
+    border-color: hsl(var(--gold-light));
+    color: hsl(var(--gold-light));
   }
 
   .btn-outline-magical {
-    border: 2px solid hsl(var(--gold));
+    border: 1px solid hsl(var(--gold));
     color: hsl(var(--gold));
     background: transparent;
-    transition: all 0.3s ease;
+    transition: all 0.35s ease;
   }
 
   .btn-outline-magical:hover {
+    box-shadow: 0 0 24px hsl(var(--gold) / 0.35);
+    color: hsl(var(--gold-light));
+    border-color: hsl(var(--gold-light));
+  }
+
+  /* Editorial section helpers */
+  .section-dark {
+    background: hsl(var(--purple-deep));
+    color: hsl(var(--primary-foreground));
+  }
+
+  .eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: hsl(var(--gold));
+  }
+
+  .gold-divider {
+    width: 48px;
+    height: 1px;
     background: hsl(var(--gold));
-    color: hsl(var(--purple-deep));
   }
 
   /* Hero Overlay */
