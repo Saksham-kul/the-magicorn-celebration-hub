@@ -129,7 +129,7 @@ export default function StudioSidebar({
 
         <div className="pt-5 pb-2 px-3 flex items-center justify-between">
           <p className="text-[10px] tracking-[0.3em] uppercase text-primary-foreground/40">
-            Folders
+            Catalogue Categories
           </p>
           <button
             onClick={() => setAdding(true)}

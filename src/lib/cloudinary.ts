@@ -1,8 +1,13 @@
 // Cloudinary frontend-only helpers (unsigned uploads).
 // Admin operations (list/delete) require server-side API secret and are stubbed.
 
-export const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
-export const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as string;
+// Cloud name + unsigned upload preset are public values (visible in any browser
+// network request to Cloudinary). Hardcoded fallbacks ensure prod builds work
+// even when env vars are not provided.
+export const CLOUD_NAME =
+  (import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string) || "dknec6yor";
+export const UPLOAD_PRESET =
+  (import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as string) || "magicornupload";
 
 export type CloudinaryAsset = {
   public_id: string;
