@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Lock, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { ADMIN_PASSWORD, unlock } from "@/lib/studioAuth";
+import { ADMIN_PASSWORD, STUDIO_DIRECT_URL, unlock } from "@/lib/studioAuth";
 import { toast } from "sonner";
 
 export default function StudioGate({ onUnlock }: { onUnlock: () => void }) {
@@ -100,6 +100,19 @@ export default function StudioGate({ onUnlock }: { onUnlock: () => void }) {
               )}
             </button>
           </form>
+
+          <div className="mt-6 border-t border-gold/10 pt-5 text-center">
+            <p className="text-[11px] leading-relaxed text-primary-foreground/45">
+              If the production host blocks deep links, open via the protected
+              bridge URL below.
+            </p>
+            <a
+              href={STUDIO_DIRECT_URL}
+              className="mt-3 inline-flex text-[10px] uppercase tracking-[0.22em] text-gold/80 hover:text-gold transition-colors"
+            >
+              Open Studio Bridge
+            </a>
+          </div>
         </div>
         <p className="text-center text-[10px] tracking-[0.3em] uppercase text-primary-foreground/30 mt-6">
           The Magicorn · Internal

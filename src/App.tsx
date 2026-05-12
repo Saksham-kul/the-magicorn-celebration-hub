@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
 import Gallery from "./pages/Gallery";
@@ -11,8 +12,24 @@ import Contact from "./pages/Contact";
 import Catalogue from "./pages/Catalogue";
 import MediaStudio from "./pages/MediaStudio";
 import NotFound from "./pages/NotFound";
+import { STUDIO_ROUTE } from "./lib/studioAuth";
 
 const queryClient = new QueryClient();
+
+const ProductionRouteBridge = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const route = params.get("studioRoute");
+
+    if (route === STUDIO_ROUTE) {
+      navigate(STUDIO_ROUTE, { replace: true });
+    }
+  }, [navigate]);
+
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -20,6 +37,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ProductionRouteBridge />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/services" element={<Services />} />
