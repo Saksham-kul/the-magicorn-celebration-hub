@@ -1,5 +1,7 @@
 const KEY = "magicorn-studio-auth";
 const TTL = 1000 * 60 * 60 * 8; // 8h
+export const STUDIO_ROUTE = "/studio/media-control-x9";
+export const STUDIO_DIRECT_URL = `/?studioRoute=${encodeURIComponent(STUDIO_ROUTE)}`;
 
 // NOTE: VITE_* env vars are baked into the client bundle at build time, so they
 // provide no real secrecy. Using a fallback constant ensures the studio works in
