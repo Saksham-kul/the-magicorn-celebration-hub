@@ -1,7 +1,12 @@
 const KEY = "magicorn-studio-auth";
 const TTL = 1000 * 60 * 60 * 8; // 8h
 
-export const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD as string;
+// NOTE: VITE_* env vars are baked into the client bundle at build time, so they
+// provide no real secrecy. Using a fallback constant ensures the studio works in
+// production builds where the .env file is absent. Replace via `VITE_ADMIN_PASSWORD`
+// if you want to override per-environment.
+export const ADMIN_PASSWORD =
+  (import.meta.env.VITE_ADMIN_PASSWORD as string) || "Magicorn2025";
 
 export function isUnlocked(): boolean {
   try {
