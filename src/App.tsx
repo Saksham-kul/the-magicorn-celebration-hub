@@ -12,9 +12,9 @@ import Contact from "./pages/Contact";
 import Catalogue from "./pages/Catalogue";
 import MediaStudio from "./pages/MediaStudio";
 import NotFound from "./pages/NotFound";
+import { STUDIO_ROUTE } from "./lib/studioAuth";
 
 const queryClient = new QueryClient();
-const STUDIO_ROUTE = "/studio/media-control-x9";
 
 const ProductionRouteBridge = () => {
   const navigate = useNavigate();
