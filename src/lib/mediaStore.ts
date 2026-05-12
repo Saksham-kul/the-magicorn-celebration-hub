@@ -18,6 +18,7 @@ type State = {
   renameFolder: (id: string, name: string) => void;
   removeFolder: (id: string) => void;
   setAssets: (a: CloudinaryAsset[]) => void;
+  setFolders: (f: Folder[]) => void;
   setInitialized: (v: boolean) => void;
 };
 
@@ -67,6 +68,7 @@ export const useMediaStore = create<State>()(
         set((s) => ({ folders: s.folders.filter((f) => f.id !== id) })),
       setAssets: (a) => set({ assets: a }),
       setInitialized: (v) => set({ isInitialized: v }),
+      setFolders: (f) => set({ folders: f }),
     }),
     { name: "magicorn-media-studio" }
   )
@@ -81,4 +83,50 @@ export function folderPath(folders: Folder[], id: string | null): string {
     cur = cur.parentId ? folders.find((f) => f.id === cur!.parentId) : undefined;
   }
   return parts.join("/");
+}
+
+/**
+ * Reconstruct folder hierarchy from asset folder paths.
+ * This allows folders to persist across browser sessions by extracting
+ * folder structure from Cloudinary asset metadata.
+ */
+export function reconstructFoldersFromAssets(assets: CloudinaryAsset[]): Folder[] {
+  const folderPaths = new Set<string>();
+  
+  // Collect all unique folder paths from assets
+  assets.forEach((asset) => {
+    if (asset.folder) {
+      folderPaths.add(asset.folder);
+      // Also add parent directories
+      // e.g., for "website/government/subfolder", add "website" and "website/government"
+      const parts = asset.folder.split("/");
+      for (let i = 1; i < parts.length; i++) {
+        folderPaths.add(parts.slice(0, i).join("/"));
+      }
+    }
+  });
+
+  const folders: Folder[] = [];
+  const pathToId = new Map<string, string>();
+
+  // Create folder objects for each path
+  Array.from(folderPaths)
+    .sort() // Sort to ensure parents are created before children
+    .forEach((path) => {
+      const parts = path.split("/");
+      const name = parts[parts.length - 1];
+      const parentPath = parts.slice(0, -1).join("/");
+      const parentId = parentPath ? pathToId.get(parentPath) : null;
+      
+      const id = crypto.randomUUID();
+      pathToId.set(path, id);
+      
+      folders.push({
+        id,
+        name,
+        parentId: parentId || null,
+      });
+    });
+
+  return folders;
 }

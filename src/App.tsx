@@ -14,7 +14,7 @@ import MediaStudio from "./pages/MediaStudio";
 import NotFound from "./pages/NotFound";
 import { STUDIO_ROUTE } from "./lib/studioAuth";
 import { fetchCloudinaryAssets } from "./lib/cloudinary";
-import { useMediaStore } from "./lib/mediaStore";
+import { useMediaStore, reconstructFoldersFromAssets } from "./lib/mediaStore";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +34,7 @@ const ProductionRouteBridge = () => {
 };
 
 const AssetInitializer = () => {
-  const { isInitialized, setAssets, setInitialized } = useMediaStore();
+  const { isInitialized, setAssets, setFolders, setInitialized } = useMediaStore();
 
   useEffect(() => {
     if (isInitialized) return;
@@ -44,6 +44,9 @@ const AssetInitializer = () => {
         const assets = await fetchCloudinaryAssets();
         if (assets.length > 0) {
           setAssets(assets);
+          // Reconstruct folder hierarchy from asset paths
+          const reconstructedFolders = reconstructFoldersFromAssets(assets);
+          setFolders(reconstructedFolders);
         }
       } catch (error) {
         console.error("Failed to initialize assets:", error);
@@ -53,7 +56,7 @@ const AssetInitializer = () => {
     };
 
     initializeAssets();
-  }, [isInitialized, setAssets, setInitialized]);
+  }, [isInitialized, setAssets, setFolders, setInitialized]);
 
   return null;
 };
