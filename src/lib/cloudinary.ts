@@ -108,3 +108,22 @@ export function formatBytes(bytes: number): string {
   const i = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
   return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
 }
+
+/**
+ * Fetch all previously uploaded assets from Cloudinary via the backend API.
+ * This provides persistent media access across browser sessions and incognito mode.
+ */
+export async function fetchCloudinaryAssets(): Promise<CloudinaryAsset[]> {
+  try {
+    const response = await fetch("/api/listCloudinaryAssets");
+    if (!response.ok) {
+      console.warn("Failed to fetch Cloudinary assets:", response.status);
+      return [];
+    }
+    const data = await response.json();
+    return data.assets || [];
+  } catch (error) {
+    console.warn("Error fetching Cloudinary assets:", error);
+    return [];
+  }
+}

@@ -2,13 +2,15 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useMediaStore } from "@/lib/mediaStore";
+import { thumbUrl } from "@/lib/cloudinary";
 import gallery1 from "@/assets/gallery-1.jpg";
 import gallery2 from "@/assets/gallery-2.jpg";
 import gallery3 from "@/assets/gallery-3.jpg";
 import gallery4 from "@/assets/gallery-4.jpg";
 import servicesimage from "@/assets/services1.jpg";
 
-const galleryItems = [
+const fallbackGalleryItems = [
   {
     image: gallery1,
     title: "Premium Gift Hampers",
@@ -37,6 +39,32 @@ const galleryItems = [
 ];
 
 const Gallery = () => {
+  const { assets } = useMediaStore();
+
+  // Use Cloudinary images if available, otherwise fall back to local assets
+  const galleryItems =
+    assets.length >= 5
+      ? assets.slice(0, 5).map((asset, i) => ({
+          image: thumbUrl(asset, 600),
+          title:
+            [
+              "Premium Gift Hampers",
+              "Birthday Celebrations",
+              "Wedding Trousseau",
+              "Corporate Events",
+              "Custom Party Essentials",
+            ][i] || asset.original_filename,
+          category:
+            [
+              "Gifting",
+              "Party Decor",
+              "Weddings",
+              "Corporate",
+              "Party Decor",
+            ][i] || "Portfolio",
+        }))
+      : fallbackGalleryItems;
+
   return (
     <section className="py-24 lg:py-32 bg-cream relative overflow-hidden">
       <div className="container mx-auto px-6">

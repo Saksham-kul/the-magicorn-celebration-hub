@@ -7,6 +7,7 @@ export type Folder = { id: string; name: string; parentId: string | null };
 type State = {
   assets: CloudinaryAsset[];
   folders: Folder[];
+  isInitialized: boolean;
   addAsset: (a: CloudinaryAsset) => void;
   addAssets: (a: CloudinaryAsset[]) => void;
   removeAssets: (ids: string[]) => void;
@@ -16,6 +17,8 @@ type State = {
   addFolder: (name: string, parentId: string | null) => void;
   renameFolder: (id: string, name: string) => void;
   removeFolder: (id: string) => void;
+  setAssets: (a: CloudinaryAsset[]) => void;
+  setInitialized: (v: boolean) => void;
 };
 
 export const useMediaStore = create<State>()(
@@ -23,6 +26,7 @@ export const useMediaStore = create<State>()(
     (set) => ({
       assets: [],
       folders: [],
+      isInitialized: false,
       addAsset: (a) =>
         set((s) => ({ assets: [a, ...s.assets.filter((x) => x.public_id !== a.public_id)] })),
       addAssets: (a) =>
@@ -61,6 +65,8 @@ export const useMediaStore = create<State>()(
         })),
       removeFolder: (id) =>
         set((s) => ({ folders: s.folders.filter((f) => f.id !== id) })),
+      setAssets: (a) => set({ assets: a }),
+      setInitialized: (v) => set({ isInitialized: v }),
     }),
     { name: "magicorn-media-studio" }
   )

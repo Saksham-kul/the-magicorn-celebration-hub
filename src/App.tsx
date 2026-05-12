@@ -13,6 +13,8 @@ import Catalogue from "./pages/Catalogue";
 import MediaStudio from "./pages/MediaStudio";
 import NotFound from "./pages/NotFound";
 import { STUDIO_ROUTE } from "./lib/studioAuth";
+import { fetchCloudinaryAssets } from "./lib/cloudinary";
+import { useMediaStore } from "./lib/mediaStore";
 
 const queryClient = new QueryClient();
 
@@ -31,12 +33,38 @@ const ProductionRouteBridge = () => {
   return null;
 };
 
+const AssetInitializer = () => {
+  const { isInitialized, setAssets, setInitialized } = useMediaStore();
+
+  useEffect(() => {
+    if (isInitialized) return;
+
+    const initializeAssets = async () => {
+      try {
+        const assets = await fetchCloudinaryAssets();
+        if (assets.length > 0) {
+          setAssets(assets);
+        }
+      } catch (error) {
+        console.error("Failed to initialize assets:", error);
+      } finally {
+        setInitialized(true);
+      }
+    };
+
+    initializeAssets();
+  }, [isInitialized, setAssets, setInitialized]);
+
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AssetInitializer />
         <ProductionRouteBridge />
         <Routes>
           <Route path="/" element={<Index />} />

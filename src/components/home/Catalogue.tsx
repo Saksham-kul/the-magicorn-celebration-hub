@@ -2,17 +2,35 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useMediaStore } from "@/lib/mediaStore";
+import { thumbUrl } from "@/lib/cloudinary";
 import gallery1 from "@/assets/gallery-1.jpg";
 import gallery3 from "@/assets/gallery-3.jpg";
 import services1 from "@/assets/services1.jpg";
 
-const previews = [
+const fallbackPreviews = [
   { src: gallery1, label: "Executive Hampers" },
   { src: services1, label: "Festive Collections" },
   { src: gallery3, label: "Bespoke Sets" },
 ];
 
 const Catalogue = () => {
+  const { assets } = useMediaStore();
+
+  // Use Cloudinary images if available, otherwise fall back to local assets
+  const previews =
+    assets.length >= 3
+      ? assets.slice(0, 3).map((asset, i) => ({
+          src: thumbUrl(asset, 500),
+          label:
+            [
+              "Executive Hampers",
+              "Festive Collections",
+              "Bespoke Sets",
+            ][i] || asset.original_filename,
+        }))
+      : fallbackPreviews;
+
   return (
     <section
       id="catalogue"
