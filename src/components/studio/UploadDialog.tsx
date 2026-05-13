@@ -75,7 +75,9 @@ export default function UploadDialog({
               );
             },
           });
-          addAsset({ ...asset, folder });
+          // Extract display name from filename (without extension)
+          const displayName = item.file.name.replace(/\.[^.]+$/, "");
+          addAsset({ ...asset, folder, display_name: displayName });
           setItems((prev) =>
             prev.map((i) =>
               i.id === item.id ? { ...i, status: "done", progress: 100 } : i

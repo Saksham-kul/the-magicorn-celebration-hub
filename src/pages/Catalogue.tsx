@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Mail } from "lucide-react";
+import { ArrowLeft, Mail, X, ZoomIn } from "lucide-react";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import { Button } from "@/components/ui/button";
-import { useMediaStore } from "@/lib/mediaStore";
+import { useMediaStore, folderPath } from "@/lib/mediaStore";
 import { thumbUrl, type CloudinaryAsset } from "@/lib/cloudinary";
 import gallery1 from "@/assets/gallery-1.jpg";
 import gallery2 from "@/assets/gallery-2.jpg";
@@ -28,27 +29,86 @@ const fallbackCollections = [
   { src: services5, name: "Signature Selections", category: "Premium", description: "Our most distinguished selections — refined materials, considered detail." },
 ];
 
+// Image Viewer Modal Component
+const ImageViewer = ({ asset, onClose }: { asset: CloudinaryAsset | null; onClose: () => void }) => {
+  if (!asset) return null;
+
+  const displayName = asset.display_name || asset.original_filename;
+  const isVideo = asset.resource_type === "video";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative max-w-4xl max-h-[90vh] w-full"
+      >
+        <button
+          onClick={onClose}
+          className="absolute -top-10 right-0 z-10 text-white hover:text-gold transition-colors"
+        >
+          <X className="w-6 h-6" />
+        </button>
+
+        {isVideo ? (
+          <video
+            src={asset.secure_url}
+            controls
+            className="w-full h-auto rounded-lg"
+          />
+        ) : (
+          <img
+            src={asset.secure_url}
+            alt={displayName}
+            className="w-full h-auto rounded-lg"
+          />
+        )}
+
+        <div className="mt-4 text-center">
+          <p className="text-white font-display text-lg">{displayName}</p>
+          <p className="text-white/60 text-sm mt-1">{asset.format.toUpperCase()} · {asset.width}×{asset.height}</p>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const CataloguePage = () => {
   const folders = useMediaStore((s) => s.folders);
   const assets = useMediaStore((s) => s.assets);
+  const [selectedImage, setSelectedImage] = useState<CloudinaryAsset | null>(null);
 
-  // Group uploaded image assets by folder (= category). Folders with zero
-  // assets are skipped. Assets without a folder collect under "Uncategorized".
+  // Get only image assets
   const imageAssets = assets.filter((a) => a.resource_type === "image");
 
-  const categoryGroups: { name: string; items: CloudinaryAsset[] }[] = folders
-    .map((f) => ({
-      name: f.name,
-      items: imageAssets.filter((a) => a.folder === f.name),
-    }))
-    .filter((g) => g.items.length > 0);
+  // Group by top-level folder
+  const categoryMap = new Map<string, CloudinaryAsset[]>();
 
-  const uncategorized = imageAssets.filter(
-    (a) => !a.folder || !folders.find((f) => f.name === a.folder)
-  );
-  if (uncategorized.length > 0) {
-    categoryGroups.push({ name: "Uncategorized", items: uncategorized });
-  }
+  imageAssets.forEach((asset) => {
+    if (!asset.folder) {
+      // Uncategorized
+      const key = "Uncategorized";
+      if (!categoryMap.has(key)) categoryMap.set(key, []);
+      categoryMap.get(key)!.push(asset);
+    } else {
+      // Get top-level folder name from path (e.g., "website/government" -> "website")
+      const topLevelFolder = asset.folder.split("/")[0];
+      if (!categoryMap.has(topLevelFolder)) categoryMap.set(topLevelFolder, []);
+      categoryMap.get(topLevelFolder)!.push(asset);
+    }
+  });
+
+  const categoryGroups = Array.from(categoryMap.entries())
+    .map(([name, items]) => ({ name, items }))
+    .filter((g) => g.items.length > 0);
 
   const hasUploads = categoryGroups.length > 0;
 
@@ -125,7 +185,8 @@ const CataloguePage = () => {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-40px" }}
                       transition={{ duration: 0.45, delay: (i % 4) * 0.06 }}
-                      className="group relative aspect-[4/5] overflow-hidden rounded-sm border border-gold/15 hover:border-gold/40 transition-all duration-500"
+                      onClick={() => setSelectedImage(item)}
+                      className="group relative aspect-[4/5] overflow-hidden rounded-sm border border-gold/15 hover:border-gold/40 transition-all duration-500 cursor-pointer"
                     >
                       <img
                         src={thumbUrl(item, 600)}
@@ -134,6 +195,11 @@ const CataloguePage = () => {
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-purple-deep/85 via-purple-deep/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center border border-gold/50">
+                          <ZoomIn className="w-5 h-5 text-gold" />
+                        </div>
+                      </div>
                       <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
                         <div className="w-6 h-px bg-gold mb-2" />
                         <p className="font-display text-sm text-primary-foreground truncate">
@@ -220,6 +286,7 @@ const CataloguePage = () => {
         </section>
       </main>
       <Footer />
+      <ImageViewer asset={selectedImage} onClose={() => setSelectedImage(null)} />
     </div>
   );
 };

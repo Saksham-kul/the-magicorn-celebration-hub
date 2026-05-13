@@ -17,17 +17,15 @@ const fallbackPreviews = [
 const Catalogue = () => {
   const { assets } = useMediaStore();
 
+  // Filter only images
+  const imageAssets = assets.filter((a) => a.resource_type === "image");
+
   // Use Cloudinary images if available, otherwise fall back to local assets
   const previews =
-    assets.length >= 3
-      ? assets.slice(0, 3).map((asset, i) => ({
+    imageAssets.length >= 3
+      ? imageAssets.slice(0, 3).map((asset) => ({
           src: thumbUrl(asset, 500),
-          label:
-            [
-              "Executive Hampers",
-              "Festive Collections",
-              "Bespoke Sets",
-            ][i] || asset.original_filename,
+          label: asset.display_name || asset.original_filename,
         }))
       : fallbackPreviews;
 

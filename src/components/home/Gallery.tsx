@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMediaStore } from "@/lib/mediaStore";
-import { thumbUrl } from "@/lib/cloudinary";
+import { thumbUrl, type CloudinaryAsset } from "@/lib/cloudinary";
 import gallery1 from "@/assets/gallery-1.jpg";
 import gallery2 from "@/assets/gallery-2.jpg";
 import gallery3 from "@/assets/gallery-3.jpg";
@@ -41,19 +41,15 @@ const fallbackGalleryItems = [
 const Gallery = () => {
   const { assets } = useMediaStore();
 
+  // Filter only images
+  const imageAssets = assets.filter((a) => a.resource_type === "image");
+
   // Use Cloudinary images if available, otherwise fall back to local assets
-  const galleryItems =
-    assets.length >= 5
-      ? assets.slice(0, 5).map((asset, i) => ({
+  const galleryItems: Array<{ image: string; title: string; category: string; asset?: CloudinaryAsset }> =
+    imageAssets.length >= 5
+      ? imageAssets.slice(0, 5).map((asset, i) => ({
           image: thumbUrl(asset, 600),
-          title:
-            [
-              "Premium Gift Hampers",
-              "Birthday Celebrations",
-              "Wedding Trousseau",
-              "Corporate Events",
-              "Custom Party Essentials",
-            ][i] || asset.original_filename,
+          title: asset.display_name || asset.original_filename,
           category:
             [
               "Gifting",
@@ -62,6 +58,7 @@ const Gallery = () => {
               "Corporate",
               "Party Decor",
             ][i] || "Portfolio",
+          asset,
         }))
       : fallbackGalleryItems;
 

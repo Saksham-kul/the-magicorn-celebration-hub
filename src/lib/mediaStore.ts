@@ -91,42 +91,37 @@ export function folderPath(folders: Folder[], id: string | null): string {
  * folder structure from Cloudinary asset metadata.
  */
 export function reconstructFoldersFromAssets(assets: CloudinaryAsset[]): Folder[] {
-  const folderPaths = new Set<string>();
-  
+  const folderMap = new Map<string, string>(); // path -> id
+
   // Collect all unique folder paths from assets
   assets.forEach((asset) => {
     if (asset.folder) {
-      folderPaths.add(asset.folder);
-      // Also add parent directories
-      // e.g., for "website/government/subfolder", add "website" and "website/government"
-      const parts = asset.folder.split("/");
-      for (let i = 1; i < parts.length; i++) {
-        folderPaths.add(parts.slice(0, i).join("/"));
-      }
+      const pathParts = asset.folder.split("/").filter(Boolean);
+      let currentPath = "";
+      
+      pathParts.forEach((part) => {
+        currentPath = currentPath ? `${currentPath}/${part}` : part;
+        if (!folderMap.has(currentPath)) {
+          folderMap.set(currentPath, crypto.randomUUID());
+        }
+      });
     }
   });
 
+  // Create folder objects
   const folders: Folder[] = [];
-  const pathToId = new Map<string, string>();
+  folderMap.forEach((id, path) => {
+    const parts = path.split("/");
+    const name = parts[parts.length - 1];
+    const parentPath = parts.slice(0, -1).join("/");
+    const parentId = parentPath ? folderMap.get(parentPath) : null;
 
-  // Create folder objects for each path
-  Array.from(folderPaths)
-    .sort() // Sort to ensure parents are created before children
-    .forEach((path) => {
-      const parts = path.split("/");
-      const name = parts[parts.length - 1];
-      const parentPath = parts.slice(0, -1).join("/");
-      const parentId = parentPath ? pathToId.get(parentPath) : null;
-      
-      const id = crypto.randomUUID();
-      pathToId.set(path, id);
-      
-      folders.push({
-        id,
-        name,
-        parentId: parentId || null,
-      });
+    folders.push({
+      id,
+      name,
+      parentId: parentId || null,
     });
+  });
 
   return folders;
 }
