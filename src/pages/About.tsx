@@ -10,7 +10,7 @@ const values = [
     icon: Heart,
     title: "Passion",
     description:
-      "Every celebration we touch is infused with our genuine love for creating magical moments.",
+      "Every celebration we touch is infused with our genuine love for creating magical moments.For everyone who chooses us, we pour our hearts into making their vision come to life.",
   },
   {
     icon: Star,
