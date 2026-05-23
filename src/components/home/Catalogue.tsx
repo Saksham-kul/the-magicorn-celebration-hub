@@ -3,29 +3,21 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMediaStore } from "@/lib/mediaStore";
-import { thumbUrl } from "@/lib/cloudinary";
-import gallery1 from "@/assets/gallery-1.jpg";
-import gallery3 from "@/assets/gallery-3.jpg";
-import services1 from "@/assets/services1.jpg";
+
 
 const fallbackPreviews = [
-  { src: gallery1, label: "Executive Hampers" },
-  { src: services1, label: "Festive Collections" },
-  { src: gallery3, label: "Bespoke Sets" },
+  
 ];
 
 const Catalogue = () => {
-  const { assets } = useMediaStore();
+  const media = useMediaStore((s) => s.media);
 
-  // Filter only images
-  const imageAssets = assets.filter((a) => a.resource_type === "image");
-
-  // Use Cloudinary images if available, otherwise fall back to local assets
+  // Use media items if available, otherwise fall back to local assets
   const previews =
-    imageAssets.length >= 3
-      ? imageAssets.slice(0, 3).map((asset) => ({
-          src: thumbUrl(asset, 500),
-          label: asset.display_name || asset.original_filename,
+    media && media.length >= 3
+      ? media.slice(0, 3).map((item) => ({
+          src: item.cloudinary_url,
+          label: item.name,
         }))
       : fallbackPreviews;
 

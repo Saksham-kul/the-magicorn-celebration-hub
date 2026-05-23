@@ -1,16 +1,12 @@
 import { motion } from "framer-motion";
-import gallery2 from "@/assets/gallery-2.jpg";
+import gallery1 from "@/assets/gallery-1.jpg";
 import gallery3 from "@/assets/gallery-3.jpg";
 import gallery4 from "@/assets/gallery-4.jpg";
-import services1 from "@/assets/services1.jpg";
-import services2 from "@/assets/services2.jpeg";
 
 const images = [
-  { src: services1, alt: "Curated luxury corporate hamper" },
-  { src: gallery2, alt: "Branded gifting collection" },
+  { src: gallery1, alt: "Curated luxury corporate hamper" },
   { src: gallery3, alt: "Bespoke trousseau presentation" },
   { src: gallery4, alt: "Executive gifting set" },
-  { src: services2, alt: "Premium packaging detail" },
 ];
 
 const Featured = () => {

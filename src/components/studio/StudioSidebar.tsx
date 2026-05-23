@@ -2,7 +2,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   FolderPlus,
-  Folder as FolderIcon,
   Image as ImageIcon,
   Star,
   Clock,
@@ -18,7 +17,7 @@ type View =
   | { kind: "all" }
   | { kind: "recent" }
   | { kind: "starred" }
-  | { kind: "folder"; name: string };
+  | { kind: "category"; id: string; name: string };
 
 export default function StudioSidebar({
   current,
@@ -27,12 +26,11 @@ export default function StudioSidebar({
   current: View;
   onSelect: (v: View) => void;
 }) {
-  const folders = useMediaStore((s) => s.folders);
-  const assets = useMediaStore((s) => s.assets);
-  const addFolder = useMediaStore((s) => s.addFolder);
-  const renameFolder = useMediaStore((s) => s.renameFolder);
-  const removeFolder = useMediaStore((s) => s.removeFolder);
-  const moveAssets = useMediaStore((s) => s.moveAssets);
+  const media = useMediaStore((s) => s.media);
+  const categories = useMediaStore((s) => s.categories);
+  const addCategory = useMediaStore((s) => s.addCategory);
+  const updateCategory = useMediaStore((s) => s.updateCategory);
+  const removeCategory = useMediaStore((s) => s.removeCategory);
 
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
@@ -40,32 +38,47 @@ export default function StudioSidebar({
   const [editName, setEditName] = useState("");
 
   const counts = {
-    all: assets.length,
-    recent: assets.filter(
-      (a) =>
-        Date.now() - new Date(a.created_at).getTime() < 7 * 24 * 60 * 60 * 1000
+    all: media.length,
+    recent: media.filter(
+      (m) =>
+        Date.now() - new Date(m.created_at).getTime() < 7 * 24 * 60 * 60 * 1000
     ).length,
-    starred: assets.filter((a) => a.starred).length,
+    starred: media.filter((m) => m.starred).length,
   };
 
-  const folderCount = (name: string) =>
-    assets.filter((a) => a.folder === name).length;
+  const categoryCount = (id: string) =>
+    media.filter((m) => m.category_id === id).length;
 
-  const submitFolder = () => {
+  const submitCategory = async () => {
     if (!newName.trim()) return;
-    addFolder(newName, null);
+    try {
+      await addCategory(newName.trim());
+      toast.success("Category created");
+    } catch {
+      toast.error("Failed to create category");
+    }
     setNewName("");
     setAdding(false);
-    toast.success("Folder created");
   };
 
-  const handleDelete = (id: string, name: string) => {
-    moveAssets(
-      assets.filter((a) => a.folder === name).map((a) => a.public_id),
-      undefined
-    );
-    removeFolder(id);
-    toast.success("Folder removed");
+  const handleRename = async (id: string) => {
+    if (!editName.trim()) return;
+    try {
+      await updateCategory(id, editName.trim());
+      toast.success("Category renamed");
+    } catch {
+      toast.error("Failed to rename category");
+    }
+    setEditing(null);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await removeCategory(id);
+      toast.success("Category removed");
+    } catch {
+      toast.error("Failed to remove category");
+    }
   };
 
   const Item = ({
@@ -129,7 +142,7 @@ export default function StudioSidebar({
 
         <div className="pt-5 pb-2 px-3 flex items-center justify-between">
           <p className="text-[10px] tracking-[0.3em] uppercase text-primary-foreground/40">
-            Catalogue Categories
+            Categories
           </p>
           <button
             onClick={() => setAdding(true)}
@@ -150,69 +163,66 @@ export default function StudioSidebar({
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") submitFolder();
+                if (e.key === "Enter") submitCategory();
                 if (e.key === "Escape") {
                   setAdding(false);
                   setNewName("");
                 }
               }}
-              onBlur={submitFolder}
-              placeholder="Folder name"
+              onBlur={submitCategory}
+              placeholder="Category name"
               className="w-full bg-primary-foreground/5 border border-gold/20 rounded-md px-2 py-1.5 text-sm text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none focus:border-gold/50"
             />
           </motion.div>
         )}
 
-        {folders.length === 0 && !adding && (
+        {categories.length === 0 && !adding && (
           <p className="px-3 py-2 text-[11px] text-primary-foreground/30 italic">
-            No folders yet
+            No categories yet
           </p>
         )}
 
-        {folders.map((f) => {
-          const active = current.kind === "folder" && current.name === f.name;
+        {categories.map((cat) => {
+          const active = current.kind === "category" && current.id === cat.id;
           return (
-            <div key={f.id} className="group/folder relative">
-              {editing === f.id ? (
+            <div key={cat.id} className="group/cat relative">
+              {editing === cat.id ? (
                 <div className="px-3">
                   <input
                     autoFocus
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        renameFolder(f.id, editName);
-                        setEditing(null);
-                      }
+                      if (e.key === "Enter") handleRename(cat.id);
                       if (e.key === "Escape") setEditing(null);
                     }}
                     onBlur={() => {
-                      if (editName.trim()) renameFolder(f.id, editName);
-                      setEditing(null);
+                      if (editName.trim()) handleRename(cat.id);
+                      else setEditing(null);
                     }}
                     className="w-full bg-primary-foreground/5 border border-gold/20 rounded-md px-2 py-1.5 text-sm text-primary-foreground"
                   />
                 </div>
               ) : (
                 <button
-                  onClick={() => onSelect({ kind: "folder", name: f.name })}
+                  onClick={() => onSelect({ kind: "category", id: cat.id, name: cat.name })}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
                     active
                       ? "bg-gold/10 text-gold"
                       : "text-primary-foreground/70 hover:bg-primary-foreground/5 hover:text-primary-foreground"
                   }`}
                 >
-                  <FolderIcon className="w-4 h-4 shrink-0" />
-                  <span className="flex-1 text-left truncate">{f.name}</span>
-                  <span className="text-[10px] tracking-wider opacity-60 group-hover/folder:opacity-0 transition">
-                    {folderCount(f.name)}
+                  <ImageIcon className="w-4 h-4 shrink-0" />
+                  <span className="flex-1 text-left truncate">{cat.name}</span>
+                  <span className="text-[10px] tracking-wider opacity-60 group-hover/cat:opacity-0 transition">
+                    {categoryCount(cat.id)}
                   </span>
-                  <span className="absolute right-2 flex gap-0.5 opacity-0 group-hover/folder:opacity-100 transition">
+                  <span className="absolute right-2 flex gap-0.5 opacity-0 group-hover/cat:opacity-100 transition">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setEditing(f.id);
-                        setEditName(f.name);
+                        setEditing(cat.id);
+                        setEditName(cat.name);
                       }}
                       className="p-1 hover:text-gold"
                     >
@@ -221,7 +231,7 @@ export default function StudioSidebar({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDelete(f.id, f.name);
+                        handleDelete(cat.id);
                       }}
                       className="p-1 hover:text-destructive"
                     >

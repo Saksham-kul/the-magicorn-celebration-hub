@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Copy, Download, Pencil, Trash2, Star, Wand2, Check } from "lucide-react";
-import { type CloudinaryAsset, formatBytes, buildTransformedUrl } from "@/lib/cloudinary";
+import { type MediaItem } from "@/lib/supabase";
 import { useMediaStore } from "@/lib/mediaStore";
+import { CLOUD_NAME, formatBytes } from "@/lib/cloudinary";
 import { toast } from "sonner";
 
 const PRESETS: { label: string; transform: string }[] = [
@@ -14,12 +15,21 @@ const PRESETS: { label: string; transform: string }[] = [
   { label: "Avatar 200", transform: "w_200,h_200,c_fill,g_face,r_max,q_auto,f_auto" },
 ];
 
+function buildTransformedUrl(publicId: string, transform: string) {
+  const t = transform ? `${transform}/` : "";
+  // Detect resource type from the public_id or URL
+  const resourceType = publicId.includes("video") ? "video" : "image";
+  const ext = publicId.split(".").pop() || "jpg";
+  const id = publicId.includes(".") ? publicId : publicId;
+  return `https://res.cloudinary.com/${CLOUD_NAME}/${resourceType}/upload/${t}${id}`;
+}
+
 export default function MediaDetail({
-  asset,
+  media,
   onClose,
   onDelete,
 }: {
-  asset: CloudinaryAsset | null;
+  media: MediaItem | null;
   onClose: () => void;
   onDelete: (id: string) => void;
 }) {
@@ -27,18 +37,16 @@ export default function MediaDetail({
   const [name, setName] = useState("");
   const [transform, setTransform] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
-  const updateAsset = useMediaStore((s) => s.updateAsset);
-  const toggleStar = useMediaStore((s) => s.toggleStar);
+  const updateMedia = useMediaStore((s) => s.updateMedia);
 
-  if (!asset) return null;
+  if (!media) return null;
 
-  const displayName = asset.display_name || asset.original_filename;
-  const transformedUrl = buildTransformedUrl(
-    asset.public_id,
-    asset.resource_type,
-    asset.format,
-    transform
-  );
+  const displayName = media.name;
+  const isVideo = media.cloudinary_url.includes("/video/");
+  const publicId = media.cloudinary_public_id;
+  const transformedUrl = transform
+    ? buildTransformedUrl(publicId, transform)
+    : media.cloudinary_url;
 
   const copy = async (text: string, key: string) => {
     await navigator.clipboard.writeText(text);
@@ -53,7 +61,7 @@ export default function MediaDetail({
   };
 
   const saveRename = () => {
-    updateAsset(asset.public_id, { display_name: name.trim() || displayName });
+    updateMedia(media.id, { name: name.trim() || displayName });
     setEditing(false);
     toast.success("Renamed");
   };
@@ -61,10 +69,14 @@ export default function MediaDetail({
   const download = () => {
     const a = document.createElement("a");
     a.href = transformedUrl;
-    a.download = `${displayName}.${asset.format}`;
+    a.download = displayName;
     a.target = "_blank";
     a.click();
   };
+
+  const size = media.metadata?.size as number | undefined;
+  const width = media.metadata?.width as number | undefined;
+  const height = media.metadata?.height as number | undefined;
 
   return (
     <AnimatePresence>
@@ -115,11 +127,11 @@ export default function MediaDetail({
             </div>
             <div className="flex items-center gap-1">
               <button
-                onClick={() => toggleStar(asset.public_id)}
+                onClick={() => updateMedia(media.id, { starred: !media.starred })}
                 className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-gold"
                 title="Star"
               >
-                <Star className={`w-4 h-4 ${asset.starred ? "fill-gold text-gold" : ""}`} />
+                <Star className={`w-4 h-4 ${media.starred ? "fill-gold text-gold" : ""}`} />
               </button>
               <button
                 onClick={startRename}
@@ -130,7 +142,7 @@ export default function MediaDetail({
               </button>
               <button
                 onClick={() => {
-                  onDelete(asset.public_id);
+                  onDelete(media.id);
                   onClose();
                 }}
                 className="w-9 h-9 rounded-full hover:bg-destructive/10 flex items-center justify-center text-muted-foreground hover:text-destructive"
@@ -143,8 +155,8 @@ export default function MediaDetail({
 
           <div className="p-6 space-y-6">
             <div className="rounded-xl overflow-hidden border border-border bg-purple-deep/5">
-              {asset.resource_type === "video" ? (
-                <video src={asset.secure_url} controls className="w-full max-h-[400px]" />
+              {isVideo ? (
+                <video src={media.cloudinary_url} controls className="w-full max-h-[400px]" />
               ) : (
                 <img
                   src={transformedUrl}
@@ -155,55 +167,57 @@ export default function MediaDetail({
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <Field label="Type" value={asset.resource_type.toUpperCase()} />
-              <Field label="Format" value={asset.format.toUpperCase()} />
-              <Field label="Size" value={formatBytes(asset.bytes)} />
+              <Field label="Type" value={isVideo ? "VIDEO" : "IMAGE"} />
+              <Field label="Category" value={media.category_name || "Uncategorized"} />
+              <Field label="Size" value={size ? formatBytes(size) : "—"} />
               <Field
                 label="Dimensions"
-                value={asset.width ? `${asset.width} × ${asset.height}` : "—"}
+                value={width && height ? `${width} × ${height}` : "—"}
               />
               <Field
                 label="Uploaded"
-                value={new Date(asset.created_at).toLocaleString()}
+                value={new Date(media.uploaded_at || media.created_at).toLocaleString()}
               />
-              <Field label="Folder" value={asset.folder || "Root"} />
+              <Field label="Folder" value={media.folder || "Root"} />
             </div>
 
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Wand2 className="w-4 h-4 text-gold" />
-                <p className="eyebrow">CDN Transformations</p>
-              </div>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {PRESETS.map((p) => (
+            {!isVideo && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Wand2 className="w-4 h-4 text-gold" />
+                  <p className="eyebrow">CDN Transformations</p>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {PRESETS.map((p) => (
+                    <button
+                      key={p.label}
+                      onClick={() => setTransform(p.transform)}
+                      className={`px-3 py-1.5 rounded-full text-xs border transition ${
+                        transform === p.transform
+                          ? "border-gold bg-gold/10 text-gold"
+                          : "border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-2 items-stretch">
+                  <input
+                    value={transformedUrl}
+                    readOnly
+                    className="flex-1 px-3 py-2 bg-muted rounded-md text-xs font-mono text-foreground border border-border min-w-0"
+                  />
                   <button
-                    key={p.label}
-                    onClick={() => setTransform(p.transform)}
-                    className={`px-3 py-1.5 rounded-full text-xs border transition ${
-                      transform === p.transform
-                        ? "border-gold bg-gold/10 text-gold"
-                        : "border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
-                    }`}
+                    onClick={() => copy(transformedUrl, "url")}
+                    className="px-4 rounded-md border border-gold text-gold text-xs uppercase tracking-wider hover:bg-gold/10 transition flex items-center gap-1.5"
                   >
-                    {p.label}
+                    {copied === "url" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    Copy
                   </button>
-                ))}
+                </div>
               </div>
-              <div className="flex gap-2 items-stretch">
-                <input
-                  value={transformedUrl}
-                  readOnly
-                  className="flex-1 px-3 py-2 bg-muted rounded-md text-xs font-mono text-foreground border border-border min-w-0"
-                />
-                <button
-                  onClick={() => copy(transformedUrl, "url")}
-                  className="px-4 rounded-md border border-gold text-gold text-xs uppercase tracking-wider hover:bg-gold/10 transition flex items-center gap-1.5"
-                >
-                  {copied === "url" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  Copy
-                </button>
-              </div>
-            </div>
+            )}
 
             <div className="flex gap-2">
               <button
@@ -214,7 +228,7 @@ export default function MediaDetail({
                 Download
               </button>
               <button
-                onClick={() => copy(asset.public_id, "id")}
+                onClick={() => copy(media.cloudinary_public_id, "id")}
                 className="flex-1 h-11 rounded-md border border-border text-muted-foreground text-xs uppercase tracking-[0.2em] hover:border-gold/40 hover:text-foreground transition flex items-center justify-center gap-2"
               >
                 {copied === "id" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}

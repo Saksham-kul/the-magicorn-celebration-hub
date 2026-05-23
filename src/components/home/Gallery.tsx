@@ -3,23 +3,15 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMediaStore } from "@/lib/mediaStore";
-import { thumbUrl, type CloudinaryAsset } from "@/lib/cloudinary";
 import gallery1 from "@/assets/gallery-1.jpg";
-import gallery2 from "@/assets/gallery-2.jpg";
 import gallery3 from "@/assets/gallery-3.jpg";
 import gallery4 from "@/assets/gallery-4.jpg";
-import servicesimage from "@/assets/services1.jpg";
 
 const fallbackGalleryItems = [
   {
     image: gallery1,
     title: "Premium Gift Hampers",
     category: "Gifting",
-  },
-  {
-    image: gallery2,
-    title: "Birthday Celebrations",
-    category: "Party Decor",
   },
   {
     image: gallery3,
@@ -32,33 +24,27 @@ const fallbackGalleryItems = [
     category: "Corporate",
   },
   {
-    image: servicesimage,
+    image: gallery1,
     title: "Custom Party Essentials",
     category: "party Decor",
   }
 ];
 
 const Gallery = () => {
-  const { assets } = useMediaStore();
+  const media = useMediaStore((s) => s.media);
 
-  // Filter only images
-  const imageAssets = assets.filter((a) => a.resource_type === "image");
+  // Filter only images (not videos)
+  const imageMedia = media.filter((m) => !m.cloudinary_url.includes("/video/"));
 
-  // Use Cloudinary images if available, otherwise fall back to local assets
-  const galleryItems: Array<{ image: string; title: string; category: string; asset?: CloudinaryAsset }> =
-    imageAssets.length >= 5
-      ? imageAssets.slice(0, 5).map((asset, i) => ({
-          image: thumbUrl(asset, 600),
-          title: asset.display_name || asset.original_filename,
+  // Use uploaded images if available (5+), otherwise fall back to local assets
+  const galleryItems: Array<{ image: string; title: string; category: string }> =
+    imageMedia.length >= 5
+      ? imageMedia.slice(0, 5).map((item, i) => ({
+          image: item.cloudinary_url,
+          title: item.name,
           category:
-            [
-              "Gifting",
-              "Party Decor",
-              "Weddings",
-              "Corporate",
-              "Party Decor",
-            ][i] || "Portfolio",
-          asset,
+            item.category_name ||
+            (["Gifting", "Party Decor", "Weddings", "Corporate", "Party Decor"][i] || "Portfolio"),
         }))
       : fallbackGalleryItems;
 

@@ -1,40 +1,28 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail, X, ZoomIn } from "lucide-react";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import { Button } from "@/components/ui/button";
-import { useMediaStore, folderPath } from "@/lib/mediaStore";
-import { thumbUrl, type CloudinaryAsset } from "@/lib/cloudinary";
+import { useMediaStore } from "@/lib/mediaStore";
+import { type MediaItem } from "@/lib/supabase";
 import gallery1 from "@/assets/gallery-1.jpg";
-import gallery2 from "@/assets/gallery-2.jpg";
 import gallery3 from "@/assets/gallery-3.jpg";
 import gallery4 from "@/assets/gallery-4.jpg";
-import services1 from "@/assets/services1.jpg";
-import services2 from "@/assets/services2.jpeg";
-import services3 from "@/assets/services3.jpeg";
-import services4 from "@/assets/services4.jpeg";
-import services5 from "@/assets/services5.jpeg";
 
 const fallbackCollections = [
   { src: gallery1, name: "Executive Hampers", category: "Corporate Gifting", description: "Refined hampers curated for leadership, board members, and high-value clientele." },
-  { src: services1, name: "Festive Collections", category: "Seasonal", description: "Thoughtfully composed festive sets that reflect occasion and brand intent." },
   { src: gallery3, name: "Bespoke Trousseau", category: "Custom", description: "Tailored trousseau and presentation sets crafted to specification." },
-  { src: gallery2, name: "Branded Merchandise", category: "Engagement", description: "Premium branded gifting designed for employee and partner engagement." },
-  { src: services2, name: "Institutional Supplies", category: "Government", description: "Compliant, scalable solutions for government and institutional orders." },
   { src: gallery4, name: "Conference Kits", category: "Events", description: "Delegate kits and conference essentials with editorial-grade finishing." },
-  { src: services3, name: "Launch Editions", category: "Brand Launch", description: "Limited editions designed to elevate product launches and milestones." },
-  { src: services4, name: "Engagement Sets", category: "Client Gifting", description: "Memorable client gifting designed to nurture long-term relationships." },
-  { src: services5, name: "Signature Selections", category: "Premium", description: "Our most distinguished selections — refined materials, considered detail." },
 ];
 
 // Image Viewer Modal Component
-const ImageViewer = ({ asset, onClose }: { asset: CloudinaryAsset | null; onClose: () => void }) => {
-  if (!asset) return null;
+const ImageViewer = ({ media, onClose }: { media: MediaItem | null; onClose: () => void }) => {
+  if (!media) return null;
 
-  const displayName = asset.display_name || asset.original_filename;
-  const isVideo = asset.resource_type === "video";
+  const displayName = media.name;
+  const isVideo = media.cloudinary_url.includes("video");
 
   return (
     <motion.div
@@ -60,13 +48,13 @@ const ImageViewer = ({ asset, onClose }: { asset: CloudinaryAsset | null; onClos
 
         {isVideo ? (
           <video
-            src={asset.secure_url}
+            src={media.cloudinary_url}
             controls
             className="w-full h-auto rounded-lg"
           />
         ) : (
           <img
-            src={asset.secure_url}
+            src={media.cloudinary_url}
             alt={displayName}
             className="w-full h-auto rounded-lg"
           />
@@ -74,7 +62,7 @@ const ImageViewer = ({ asset, onClose }: { asset: CloudinaryAsset | null; onClos
 
         <div className="mt-4 text-center">
           <p className="text-white font-display text-lg">{displayName}</p>
-          <p className="text-white/60 text-sm mt-1">{asset.format.toUpperCase()} · {asset.width}×{asset.height}</p>
+          <p className="text-white/60 text-sm mt-1">{media.category_name || "Uncategorized"}</p>
         </div>
       </motion.div>
     </motion.div>
@@ -82,33 +70,35 @@ const ImageViewer = ({ asset, onClose }: { asset: CloudinaryAsset | null; onClos
 };
 
 const CataloguePage = () => {
-  const folders = useMediaStore((s) => s.folders);
-  const assets = useMediaStore((s) => s.assets);
-  const [selectedImage, setSelectedImage] = useState<CloudinaryAsset | null>(null);
+  const media = useMediaStore((s) => s.media);
+  const categories = useMediaStore((s) => s.categories);
+  const fetchMedia = useMediaStore((s) => s.fetchMedia);
+  const fetchCategories = useMediaStore((s) => s.fetchCategories);
+  const [selectedImage, setSelectedImage] = useState<MediaItem | null>(null);
 
-  // Get only image assets
-  const imageAssets = assets.filter((a) => a.resource_type === "image");
+  useEffect(() => {
+    // Load media and categories from Supabase
+    fetchMedia();
+    fetchCategories();
+  }, [fetchMedia, fetchCategories]);
 
-  // Group by top-level folder
-  const categoryMap = new Map<string, CloudinaryAsset[]>();
+  // Group media by category
+  const categoryMap = new Map<string, MediaItem[]>();
 
-  imageAssets.forEach((asset) => {
-    if (!asset.folder) {
-      // Uncategorized
-      const key = "Uncategorized";
-      if (!categoryMap.has(key)) categoryMap.set(key, []);
-      categoryMap.get(key)!.push(asset);
-    } else {
-      // Get top-level folder name from path (e.g., "website/government" -> "website")
-      const topLevelFolder = asset.folder.split("/")[0];
-      if (!categoryMap.has(topLevelFolder)) categoryMap.set(topLevelFolder, []);
-      categoryMap.get(topLevelFolder)!.push(asset);
-    }
+  media.forEach((item) => {
+    const key = item.category_name || "Uncategorized";
+    if (!categoryMap.has(key)) categoryMap.set(key, []);
+    categoryMap.get(key)!.push(item);
   });
 
   const categoryGroups = Array.from(categoryMap.entries())
     .map(([name, items]) => ({ name, items }))
-    .filter((g) => g.items.length > 0);
+    .filter((g) => g.items.length > 0)
+    .sort((a, b) => {
+      if (a.name === "Uncategorized") return 1;
+      if (b.name === "Uncategorized") return -1;
+      return a.name.localeCompare(b.name);
+    });
 
   const hasUploads = categoryGroups.length > 0;
 
@@ -180,7 +170,7 @@ const CataloguePage = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
                   {group.items.map((item, i) => (
                     <motion.div
-                      key={item.public_id}
+                      key={item.id}
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-40px" }}
@@ -189,8 +179,8 @@ const CataloguePage = () => {
                       className="group relative aspect-[4/5] overflow-hidden rounded-sm border border-gold/15 hover:border-gold/40 transition-all duration-500 cursor-pointer"
                     >
                       <img
-                        src={thumbUrl(item, 600)}
-                        alt={item.display_name || item.original_filename}
+                        src={item.cloudinary_url}
+                        alt={item.name}
                         loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
@@ -203,7 +193,7 @@ const CataloguePage = () => {
                       <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
                         <div className="w-6 h-px bg-gold mb-2" />
                         <p className="font-display text-sm text-primary-foreground truncate">
-                          {item.display_name || item.original_filename}
+                          {item.name}
                         </p>
                       </div>
                     </motion.div>
@@ -286,7 +276,11 @@ const CataloguePage = () => {
         </section>
       </main>
       <Footer />
-      <ImageViewer asset={selectedImage} onClose={() => setSelectedImage(null)} />
+      <AnimatePresence>
+        {selectedImage && (
+          <ImageViewer media={selectedImage} onClose={() => setSelectedImage(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

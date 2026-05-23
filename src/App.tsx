@@ -13,8 +13,7 @@ import Catalogue from "./pages/Catalogue";
 import MediaStudio from "./pages/MediaStudio";
 import NotFound from "./pages/NotFound";
 import { STUDIO_ROUTE } from "./lib/studioAuth";
-import { fetchCloudinaryAssets } from "./lib/cloudinary";
-import { useMediaStore, reconstructFoldersFromAssets } from "./lib/mediaStore";
+import { useMediaStore } from "./lib/mediaStore";
 
 const queryClient = new QueryClient();
 
@@ -33,30 +32,15 @@ const ProductionRouteBridge = () => {
   return null;
 };
 
-const AssetInitializer = () => {
-  const { isInitialized, setAssets, setFolders, setInitialized } = useMediaStore();
+const MediaInitializer = () => {
+  const fetchMedia = useMediaStore((s) => s.fetchMedia);
+  const fetchCategories = useMediaStore((s) => s.fetchCategories);
 
   useEffect(() => {
-    if (isInitialized) return;
-
-    const initializeAssets = async () => {
-      try {
-        const assets = await fetchCloudinaryAssets();
-        if (assets.length > 0) {
-          setAssets(assets);
-          // Reconstruct folder hierarchy from asset paths
-          const reconstructedFolders = reconstructFoldersFromAssets(assets);
-          setFolders(reconstructedFolders);
-        }
-      } catch (error) {
-        console.error("Failed to initialize assets:", error);
-      } finally {
-        setInitialized(true);
-      }
-    };
-
-    initializeAssets();
-  }, [isInitialized, setAssets, setFolders, setInitialized]);
+    // Load media and categories from Supabase on app start
+    fetchMedia();
+    fetchCategories();
+  }, [fetchMedia, fetchCategories]);
 
   return null;
 };
@@ -67,7 +51,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AssetInitializer />
+        <MediaInitializer />
         <ProductionRouteBridge />
         <Routes>
           <Route path="/" element={<Index />} />

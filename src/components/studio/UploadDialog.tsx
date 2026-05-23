@@ -18,14 +18,16 @@ export default function UploadDialog({
   open,
   onClose,
   folder,
+  categoryId,
 }: {
   open: boolean;
   onClose: () => void;
   folder?: string;
+  categoryId?: string;
 }) {
   const [items, setItems] = useState<Item[]>([]);
   const [dragOver, setDragOver] = useState(false);
-  const addAsset = useMediaStore((s) => s.addAsset);
+  const addMedia = useMediaStore((s) => s.addMedia);
 
   const addFiles = useCallback((files: FileList | File[]) => {
     const list = Array.from(files);
@@ -77,7 +79,22 @@ export default function UploadDialog({
           });
           // Extract display name from filename (without extension)
           const displayName = item.file.name.replace(/\.[^.]+$/, "");
-          addAsset({ ...asset, folder, display_name: displayName });
+          
+          // Save to Supabase
+          await addMedia({
+            name: displayName,
+            cloudinary_url: asset.secure_url,
+            cloudinary_public_id: asset.public_id,
+            category_id: categoryId || null,
+            folder: folder,
+            uploaded_at: new Date().toISOString(),
+            metadata: {
+              original_filename: item.file.name,
+              size: item.file.size,
+              type: item.file.type,
+            },
+          });
+          
           setItems((prev) =>
             prev.map((i) =>
               i.id === item.id ? { ...i, status: "done", progress: 100 } : i
