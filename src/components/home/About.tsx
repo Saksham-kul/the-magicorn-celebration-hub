@@ -35,7 +35,7 @@ const About = () => {
               <p>
                 With a focus on quality, customization, and timely delivery, we
                 partner with organizations to deliver solutions that are not
-                just functional but memorable.
+                just functional but memorable.We focus on experience.
               </p>
             </div>
           </motion.div>
