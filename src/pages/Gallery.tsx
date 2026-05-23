@@ -4,27 +4,21 @@ import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import { X, ZoomIn } from "lucide-react";
 import gallery1 from "@/assets/gallery-1.jpg";
-import gallery2 from "@/assets/gallery-2.jpg";
 import gallery3 from "@/assets/gallery-3.jpg";
 import gallery4 from "@/assets/gallery-4.jpg";
-import services1 from "@/assets/services1.jpg";
-import services2 from "@/assets/services2.jpeg";
-import services3 from "@/assets/services3.jpeg";
-import services4 from "@/assets/services4.jpeg";
-import services5 from "@/assets/services5.jpeg";
 
 const categories = ["All", "Gifting", "Weddings", "Birthdays", "Corporate"];
 
 const galleryItems = [
   { image: gallery1, title: "Luxury Gift Hamper", category: "Gifting" },
-  { image: gallery2, title: "Birthday Celebration", category: "Birthdays" },
-  { image: gallery3, title: "Wedding Trousseau", category: "Weddings" },
-  { image: gallery4, title: "Corporate Gifts", category: "Corporate" },
-  { image: services1, title: "Custom Party Essentials", category: "Gifting" },
-  { image: services2, title: "Gift Hampers", category: "Weddings" },
-  { image: services3, title: "Birthday Party Setup", category: "Birthdays" },
-  { image: services4, title: "School Event Planning", category: "Corporate" },
-  { image: services5, title: "Wedding Decor", category: "Weddings" },
+  { image: gallery3, title: "Birthday Celebration", category: "Birthdays" },
+  { image: gallery4, title: "Wedding Trousseau", category: "Weddings" },
+  { image: gallery1, title: "Corporate Gifts", category: "Corporate" },
+  { image: gallery3, title: "Custom Party Essentials", category: "Gifting" },
+  { image: gallery4, title: "Gift Hampers", category: "Weddings" },
+  { image: gallery1, title: "Birthday Party Setup", category: "Birthdays" },
+  { image: gallery3, title: "Event Planning", category: "Corporate" },
+  { image: gallery4, title: "Wedding Decor", category: "Weddings" },
 ];
 
 const GalleryPage = () => {
