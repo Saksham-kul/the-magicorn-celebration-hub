@@ -30,7 +30,7 @@ const products = [
   { image: "WhatsApp Image 2026-10-14 at 18.09.46.jpeg", name: "Good Fortune Ganesha Keepsake" },
 ];
 
-const whatsappNumber = "919910105734";
+const whatsappNumber = "917011200433";
 
 // Image Viewer Modal Component
 const ImageViewer = ({ media, onClose }: { media: MediaItem | null; onClose: () => void }) => {
