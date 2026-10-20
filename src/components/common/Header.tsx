@@ -89,12 +89,27 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-10">
           {navLinks.map((link) => {
-            const isActive = isHome && activeSection === link.section;
+            const isActive =
+              link.name === "Catalogue"
+                ? location.pathname === "/catalogue" ||
+                  (isHome && activeSection === link.section)
+                : isHome && activeSection === link.section;
             return (
               <a
                 key={link.name}
-                href={link.section === "top" ? "/" : `/#${link.section}`}
+                href={
+                  link.name === "Catalogue"
+                    ? "/catalogue"
+                    : link.section === "top"
+                      ? "/"
+                      : `/#${link.section}`
+                }
                 onClick={(e) => {
+                  if (link.name === "Catalogue") {
+                    e.preventDefault();
+                    navigate("/catalogue");
+                    return;
+                  }
                   if (isHome) handleNav(e, link.section);
                   else {
                     e.preventDefault();
@@ -153,9 +168,20 @@ const Header = () => {
               {navLinks.map((link) => (
                 <a
                   key={link.name}
-                  href={link.section === "top" ? "/" : `/#${link.section}`}
+                  href={
+                    link.name === "Catalogue"
+                      ? "/catalogue"
+                      : link.section === "top"
+                        ? "/"
+                        : `/#${link.section}`
+                  }
                   onClick={(e) => {
                     setIsMobileMenuOpen(false);
+                    if (link.name === "Catalogue") {
+                      e.preventDefault();
+                      navigate("/catalogue");
+                      return;
+                    }
                     if (isHome) handleNav(e, link.section);
                     else {
                       e.preventDefault();

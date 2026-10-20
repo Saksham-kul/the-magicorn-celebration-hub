@@ -1,21 +1,36 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Mail, X, ZoomIn } from "lucide-react";
+import { ArrowLeft, Mail, MessageCircle, X, ZoomIn } from "lucide-react";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import { Button } from "@/components/ui/button";
 import { useMediaStore } from "@/lib/mediaStore";
 import { type MediaItem } from "@/lib/supabase";
-import gallery1 from "@/assets/gallery-1.jpg";
-import gallery3 from "@/assets/gallery-3.jpg";
-import gallery4 from "@/assets/gallery-4.jpg";
 
-const fallbackCollections = [
-  { src: gallery1, name: "Executive Hampers", category: "Corporate Gifting", description: "Refined hampers curated for leadership, board members, and high-value clientele." },
-  { src: gallery3, name: "Bespoke Trousseau", category: "Custom", description: "Tailored trousseau and presentation sets crafted to specification." },
-  { src: gallery4, name: "Conference Kits", category: "Events", description: "Delegate kits and conference essentials with editorial-grade finishing." },
+const products = [
+  { image: "WhatsApp Image 2026-10-14 at 18.05.54.jpeg", name: "Coffee Hamper for Her (premium)" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.07 (1).jpeg", name: "Elegant Lakshmi & Ganesha Blessings Gift Set" },
+  { image: "WhatsApp Image 2026-10-20 at 14.41.51.jpeg", name: "The Premium Couple Hamper" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.08.jpeg", name: "Diwali Aroma Hamper" },
+  { image: "WhatsApp Image 2026-10-20 at 14.43.20.jpeg", name: "Women Head To Toe Hamper" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.24.jpeg", name: "Perfect Coffee Date Hamper" },
+  { image: "WhatsApp Image 2026-10-20 at 14.43.43.jpeg", name: "The Dryfruit Aroma Hamper" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.32.jpeg", name: "Feng Shui Diwali Gift Hamper" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.34.jpeg", name: "Colorful Ganesha Idol" },
+  { image: "WhatsApp Image 2026-10-20 at 14.44.07.jpeg", name: "The couple nazar na lag jaye coffee hamper" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.42.jpeg", name: "Hamper for Pamper" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.43 (2).jpeg", name: "Aroma Reed Diffuser Hamper" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.43.jpeg", name: "Perfect Diwali Puja Hamper" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.44 (1).jpeg", name: "Complete Diwali Celebration Hamper" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.44.jpeg", name: "Lotus Ganesha - Prosperity and Good Fortune" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.45.jpeg", name: "Baby Ganesha Diwali Gift Basket" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.46 (1).jpeg", name: "Ganesha Chocolate Hamper" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.46 (2).jpeg", name: "Godh Bharai Return Gift Hamper" },
+  { image: "WhatsApp Image 2026-10-14 at 18.09.46.jpeg", name: "Good Fortune Ganesha Keepsake" },
 ];
+
+const whatsappNumber = "919910105734";
 
 // Image Viewer Modal Component
 const ImageViewer = ({ media, onClose }: { media: MediaItem | null; onClose: () => void }) => {
@@ -137,6 +152,75 @@ const CataloguePage = () => {
           </div>
         </section>
 
+        <section className="py-16 lg:py-24">
+          <div className="container mx-auto px-6">
+            <div className="mb-10 flex items-end justify-between gap-4 flex-wrap">
+              <div>
+                <span className="eyebrow">Made to delight</span>
+                <h2 className="font-display text-3xl md:text-4xl font-semibold text-primary-foreground mt-3">
+                  Our Product Collection
+                </h2>
+                <div className="gold-divider mt-4" />
+              </div>
+              <p className="text-xs tracking-[0.25em] uppercase text-primary-foreground/40">
+                {products.length} {products.length === 1 ? "Piece" : "Pieces"}
+              </p>
+            </div>
+            <p className="font-body text-primary-foreground/65 max-w-2xl mb-10 leading-relaxed">
+              Discover thoughtful details and beautiful finds from The Magicorn.
+              Have a question about a piece? Get in touch with us directly.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6">
+              {products.map((product, index) => {
+                const productName = product.name;
+                const imageUrl = `/products/${encodeURIComponent(product.image)}`;
+                const message = `Hi, I'm interested in ${productName}. Could you share more details?`;
+
+                return (
+                  <motion.article
+                    key={product.image}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.45, delay: (index % 4) * 0.06 }}
+                    className="group overflow-hidden border border-gold/15 hover:border-gold/40 transition-colors duration-500"
+                  >
+                    <div className="aspect-[4/5] overflow-hidden bg-purple-royal/20">
+                      <img
+                        src={imageUrl}
+                        alt={productName}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="p-5">
+                      <div className="w-6 h-px bg-gold mb-3" />
+                      <h3 className="font-display text-lg text-primary-foreground mb-4">
+                        {productName}
+                      </h3>
+                      <Button
+                        asChild
+                        className="btn-magical w-full rounded-none font-body text-[0.65rem] tracking-[0.2em]"
+                      >
+                        <a
+                          href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Ask about ${productName} on WhatsApp`}
+                        >
+                          <MessageCircle className="mr-2 w-4 h-4" />
+                          ENQUIRE ON WHATSAPP
+                        </a>
+                      </Button>
+                    </div>
+                  </motion.article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         {/* Uploaded categories from the Studio */}
         {hasUploads &&
           categoryGroups.map((group, gi) => (
@@ -202,47 +286,6 @@ const CataloguePage = () => {
               </div>
             </section>
           ))}
-
-        {/* Default editorial collections (always shown if no uploads, otherwise as
-            a curated showcase below the live categories) */}
-        {!hasUploads && (
-          <section className="py-20 lg:py-28">
-            <div className="container mx-auto px-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                {fallbackCollections.map((item, i) => (
-                  <motion.div
-                    key={item.name}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
-                    className="group border border-gold/15 rounded-sm overflow-hidden hover:border-gold/40 transition-all duration-500"
-                  >
-                    <div className="relative aspect-[4/5] overflow-hidden">
-                      <img
-                        src={item.src}
-                        alt={item.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-purple-deep/80 via-transparent to-transparent" />
-                    </div>
-                    <div className="p-6">
-                      <div className="text-[0.65rem] tracking-[0.3em] uppercase text-gold mb-2">
-                        {item.category}
-                      </div>
-                      <h3 className="font-display text-xl text-primary-foreground mb-3">
-                        {item.name}
-                      </h3>
-                      <p className="font-body text-sm text-primary-foreground/65 leading-relaxed">
-                        {item.description}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* CTA */}
         <section className="py-20 border-t border-gold/10">
