@@ -18,6 +18,9 @@ const Hero = () => {
       />
       {/* Optional ≤10% subtle dark overlay */}
       <div className="absolute inset-0 bg-purple-deep/10 pointer-events-none" />
+      <p className="pointer-events-none absolute left-1/2 top-[78.5%] w-full -translate-x-1/2 -translate-y-1/2 px-4 text-center font-display text-sm font-semibold tracking-[0.12em] text-purple-deep sm:text-xl md:text-2xl md:tracking-[0.18em]">
+        Crafting Experiences, Creating Memories
+      </p>
     </section>
   );
 };

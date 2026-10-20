@@ -82,7 +82,7 @@ const Header = () => {
             className="w-10 h-10 object-contain"
           />
           <span className="font-display text-lg md:text-xl font-semibold text-primary-foreground tracking-[0.2em]">
-            THE <span className="text-gold">MAGICORN</span>
+            THE <span className="text-gold">MAGICORN COLLECTIVES</span>
           </span>
         </Link>
 
